@@ -6,15 +6,15 @@ public class Main {
 
     public static void main(String[] args) {
         // write your code here
-        Scanner teclado = new Scanner(System.in).useDelimiter("\n");
-        int        numCliente = 0, opcion, k = 0;;
-        String[]   nombres = new String[15];
+        Scanner    teclado        = new Scanner(System.in).useDelimiter("\n");
+        int        numCliente     = 0, opcion, k = 0 ,m = 0;
+        String[]   nombres        = new String[15];
         String[]   ClienteSemanal = new String[100];
-        String[]   venderMensual = new String[101];
-        int   []   juegoDiario = new int[5];
-        int   []   juegoSemanal = new int [2];
-        int   [][] venderDiario = new int[15][5];
-        int   [][] venderSemanal = new int[100][2];
+        String[]   venderMensual  = new String[101];
+        int   []   juegoDiario    = new int[5];
+        int   []   juegoSemanal   = new int [2];
+        int   [][] venderDiario   = new int[15][5];
+        int   [][] venderSemanal  = new int[100][2];
         try {
             llenarMatriz(venderDiario);
             llenarVenderMensual(venderMensual);
@@ -46,12 +46,12 @@ public class Main {
                     case 3:
                         //Vender mensual
                         venderMensual(venderMensual);
-
+                        m++;
                         break;
 
                     case 4:
                         //Juego diario
-                        jugarDiario(venderDiario, juegoDiario, nombres);
+                        jugarDiario(venderDiario, juegoDiario, nombres,k);
 
                         break;
 
@@ -61,7 +61,7 @@ public class Main {
                         break;
                     case 6:
                         //Juego mensual
-                        jugarMensual(venderMensual);
+                        jugarMensual(venderMensual,m);
 
                         break;
                     default:
@@ -104,9 +104,12 @@ public class Main {
             }
             contador = verificarNumeros(numeros, num, k);
             if (contador > 0) {
-                System.out.println("El numero no esta disponible");
-                System.out.println("Ingrese un nuevo numero: ");
-                numeroNuevo = teclado.nextInt();
+                do{
+                    System.out.print("El numero no esta disponible");
+                    System.out.println(", ingrese un nuevo numero: ");
+                    numeroNuevo = teclado.nextInt();
+                    contador = verificarNumeros(numeros, numeroNuevo, k);
+                }while( contador == 1);
                 numeros[k][i] = numeroNuevo;
             } else {
                 numeros[k][i] = num;
@@ -116,7 +119,7 @@ public class Main {
     }
 
     //Juego Diario
-    private static void jugarDiario(int[][] numeros, int[] juego, String[] clientes) {
+    private static void jugarDiario(int[][] numeros, int[] juego, String[] clientes,int k) {
         int fila;
         String ganadores;
         boolean condicion = false;
@@ -124,20 +127,14 @@ public class Main {
             juego[i] = obtenerNumeroAzar(0, 100);
             //juego[i] = 45+i;
         }
-        // con = numeros.length;
+        System.out.println("Numeros premiados");
+        for (int j = 0; j < 5; j++) {
+            System.out.print(juego[j] + " ");
+        }
+        System.out.println(" ");
         for (int i = 0; i < 15; i++) {
             fila = numeros[i][0];
-            if (fila != 0) {
-                //Para visualizar la comparacion de los numeros
-               /*/ System.out.print("Nombre: " + clientes[i]);
-                System.out.print(" Numeros: ");
-                for (int j = 0; j < 5; j++) {
-                    System.out.print(numeros[i][j] + " ");
-                }
-                System.out.print("---");
-                for (int j = 0; j < 5; j++) {
-                    System.out.print(juego[j] + " ");
-                }*/
+            if (fila != 101) {
                 ganadores = compararNumeros(numeros, juego, i, clientes);
                 if (!ganadores.equals(" > No hay ganadores.")) {
                     System.out.println(ganadores);
@@ -149,13 +146,15 @@ public class Main {
                 }
             }
         }
+        if(k==0)
+            System.out.println("No hay registro de ventas.");
     }
 
     //vender semanal
-    private static void venderSemanal(String[] ClienteSemanal, int numCliente,int numerosSemanales[][]) {
+    private static void venderSemanal(String[] ClienteSemanal, int numCliente,int[][] numerosSemanales) {
         Scanner teclado = new Scanner(System.in).useDelimiter("\n");
         int numeroNuevo;
-        boolean condicion = false;
+       // boolean condicion = false;
         System.out.println("Cliente: " + (numCliente + 1));
         System.out.print("Escriba el nombre: ");
         ClienteSemanal[numCliente] = teclado.next();
@@ -183,7 +182,7 @@ public class Main {
     }
 
     //Juego semanal
-    private static void jugarSemanal(int [] juego,int numCliente, int numerosSemanales[][],String[] ClienteSemanal) {
+    private static void jugarSemanal(int [] juego,int numCliente, int[][] numerosSemanales,String[] ClienteSemanal) {
         boolean SinGanadores = false; //" > No hay ganadores.";
         for (int i = 0; i < 2; i++) {
             juego[i] = obtenerNumeroAzar(0, 100);
@@ -193,7 +192,7 @@ public class Main {
         for (int i = 0; i < 2; i++) {
             System.out.print(juego[i]+ "- ");
         }
-        System.out.println("");
+        System.out.println(" ");
         for (int i = 0; i < numCliente; i++) {
             if (juego[0]== numerosSemanales[i][0] && juego[1]== numerosSemanales[i][1]) {
                 System.out.println("Felicidades " + ClienteSemanal[i] + ", su premio es de 100,000 lps.");
@@ -230,7 +229,6 @@ public class Main {
                     numero = teclado.nextInt();
                 }while (numero<0 || numero>100);
             }
-
             if (venderMensual[numero].equals("-")) {
                 venderMensual[numero] = nombre;
                 condicion = true;
@@ -243,23 +241,26 @@ public class Main {
     }
 
     //jugar mensual
-    private static void jugarMensual(String[] venderMensual) {
+    private static void jugarMensual(String[] venderMensual, int m) {
         int numeroRandom;
         String nombre;
         numeroRandom = obtenerNumeroAzar(0, 100);
         // numeroRandom = 50;
         System.out.println("El numero es: " + numeroRandom);
-        if (!venderMensual[numeroRandom].equals("-")) {
+        if(m==0) {
+            System.out.println("No hay registro de ventas.");
+        }else if (!venderMensual[numeroRandom].equals("-")) {
             nombre = venderMensual[numeroRandom];
             System.out.println("Felicidades " + nombre + ", ha ganado el juego.");
             System.out.println("Su premio es de 10,000 lps.");
         } else if (venderMensual[numeroRandom].equals("-")) {
             System.out.println("No hay ganador");
         }
+
     }
 
     //metodos extras
-    private static boolean verificarNumeros2(int num[][], int k) {
+    private static boolean verificarNumeros2(int[][] num, int k) {
         boolean condicion = false;
         for (int j = 0; j < 1; j++) {
             if (num[k][j] == num[k][j + 1])
@@ -271,13 +272,13 @@ public class Main {
     private static void llenarMatriz(int[][] numeros) {
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 5; j++) {
-                numeros[i][j] = 0;
+                numeros[i][j] = 101;
             }
         }
     }
 
     private static void llenarVenderMensual(String[] nombres) {
-        for (int i = 0; i < 101; i++) {
+        for (int i = 0; i <= 100; i++) {
             nombres[i] = "-";
         }
     }
